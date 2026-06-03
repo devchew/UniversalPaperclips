@@ -1,815 +1,573 @@
-/* Added by RandomDude */
-body {
-   background-color: #15171C;
-   color: white;
-   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* =====================================================================
+   UNIVERSAL PAPERCLIPS — MODERN UI REWORK
+   "Advanced AI control terminal" theme.
+   Pure-CSS restyle: every element id, onclick handler and the inline
+   styles the game sets at runtime (display toggles, quantum-chip
+   opacity, payoff-cell highlights, canvas sizing) are left untouched.
+   ===================================================================== */
+
+:root {
+    --bg:            #07090d;
+    --surface-1:     #10151e;   /* cards                */
+    --surface-2:     #151c28;   /* sub-cards / inputs   */
+    --surface-3:     #0a0e15;   /* console / insets     */
+    --surface-hi:    #1b2433;   /* hover lift           */
+
+    --line:          rgba(150, 180, 210, 0.10);
+    --line-2:        rgba(150, 180, 210, 0.20);
+
+    --text:          #dfe7ef;
+    --text-dim:      #97a4b6;
+    --text-faint:    #5f6c7e;
+    --text-bright:   #f1f7fb;
+
+    --accent:        #37e0c8;   /* aqua — primary       */
+    --accent-press:  #24c4ad;
+    --accent-weak:   rgba(55, 224, 200, 0.14);
+    --accent-glow:   rgba(55, 224, 200, 0.40);
+    --accent-ink:    #052621;   /* text on accent fill  */
+
+    --amber:         #f3b54a;   /* costs / warnings     */
+    --danger:        #f06a60;   /* disassemble / combat */
+    --good:          #67e08f;   /* profit / positive    */
+
+    --radius:        12px;
+    --radius-sm:     8px;
+    --shadow:        0 10px 30px -16px rgba(0,0,0,0.85);
 }
 
-/* Original CSS */
-#btnMakeProbe {
+/* ----------------------------------------------------------------- base */
+* { box-sizing: border-box; }
+
+html, body { max-width: 100%; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    background-color: var(--bg);
+    background-image:
+        radial-gradient(1200px 560px at 50% -220px, rgba(55,224,200,0.085), transparent 60%),
+        linear-gradient(rgba(150,180,210,0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(150,180,210,0.022) 1px, transparent 1px);
+    background-size: auto, 42px 42px, 42px 42px;
+    background-attachment: fixed;
+    font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.1px;
+}
+
+::selection { background: var(--accent-weak); color: var(--text-bright); }
+
+/* slim themed scrollbars */
+* { scrollbar-width: thin; scrollbar-color: #2a3445 transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #28313f; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: #364154; }
+
+/* --------------------------------------------------------- typography */
+b {
+    font-family: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+    font-weight: 600;
+    color: var(--text-bright);
+    letter-spacing: 0.02em;
+}
+
+/* Panel titles: a bold tag immediately followed by a divider */
+b:has(+ hr) {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--accent);
     margin-bottom: 2px;
 }
 
-#btnAddProc {
-    width: 70px;
-    margin-bottom: 1px;
-}
-
-#btnAddMem {
-    width: 70px;
-}
-
-#btnEntertainSwarm {
-    margin-top: 4px;
-    margin-bottom: 4px;
-}
-
-#btnSynchSwarm {
-    margin-top: 4px;
-    margin-bottom: 4px;
-}
-
-
-#qCompDisplay {
-    margin-left: 3px;
-}
-
-#swarmSliderDiv {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 10px;  
-}
-
-#sliderLabelWork {
-    position: relative;
-    display: inline-block;
-}
-
-#swarmSlider {
-    position: absolute;
-    display: inline-block;
-    width: 180px;
-    top: 0px;
-    margin-left: 2px;
-    margin-right: 4px;
-}
-
-#sliderLabelThink {
-    position: relative;
-    display: inline-block;
-    left: 190px;
-}
-
-.slider {
-    width: 100%;
-}
-
-h2 {
-    line-height: 70%;
-}
-
-.shop {
-    position: absolute;
-    top: 8;
-    right: 8;
-    background-color: yellow;
-    z-index: 1;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    text-align: right;
-}
-
-.toolTip {
-    position: relative;
-    display: inline-block;
-}
-
-.toolTip .toolTipText {
-    visibility: hidden;
-    width: 160px;
-    background-color: #c8c8c8;
-    color: #000;
-    text-align: center;
-    padding: 5px 0;
-    border-radius: 3px;
-    
-    position: absolute;
-    z-index: 1;
-    bottom: 75%;
-    left: 50%;
-    margin-left: -19px;
-    
-    opacity: 0;
-    transition: opacity 1s;
-}
-
-.toolTip:hover .toolTipText {
-    visibility: visible;
-    opacity: 1;
-}
-
-.toolTip2 {
-    margin-left: 2px;
-    position: relative;
-    display: inline-block;
-    height: 20px;
-    margin-top: 5px;
-
-}
-
-.toolTip2 .toolTipText2 {
-    visibility: hidden;
-    width: 200px;
-    background-color: #c8c8c8;
-    color: #000;
-    text-align: center;
-    padding: 5px 0;
-    border-radius: 3px;
-    
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11;
-    
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -15px;
-    
-    opacity: 0;
-    transition: opacity 1s;
-}
-
-.toolTip2:hover .toolTipText2 {
-    visibility: visible;
-    opacity: 1;
-}
-
-.toolTip3 {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 5px;
-}
-
-.toolTip3 .toolTipText3 {
-    visibility: hidden;
-    width: 180px;
-    background-color: #c8c8c8;
-    color: #000;
-    text-align: center;
-    padding: 5px 0;
-    border-radius: 3px;
-    
-    position: absolute;
-    z-index: 1;
-    bottom: 27px;
-    left: 80px;
-    margin-left: 0px;
-    
-    opacity: 0;
-    transition: opacity 1s;
-}
-
-.toolTip3:hover .toolTipText3 {
-    visibility: visible;
-    opacity: 1;
-}
-
-
-#cover {
-    position:fixed;
-    background-color: white;
-    top:0;
-    left:0;
-    height:100%;
-    width:100%;
-    z-index: 10;
-}
-
-#tournamentStuff {
-    height: 58px;
-
-}
-
-#tournamentLabel {
-    margin-bottom: 5px;
-}
-
-#wireBuyerDiv {
-    margin-bottom: 3px;
-}
-
-#processorDisplay {
-    display: inline-block;
-    vertical-align: baseline;
-    height: 22px;
-}
-
-#memoryDisplay {
-    display: inline-block;
-    vertical-align: baseline;
-    height: 22px;
-}
-
-#harvesterMultiButtons {
-    margin-bottom: 2; 
-}
-
-#wireDroneMultiButtons {
-    margin-bottom: 2;
-}
-
-#farmMultiButtons {
-    margin-bottom: 2;
-}
-
-#batteryMultiButtons {
-    margin-bottom: 2;
-}
-
-#autoTourneyStatusDiv {
-    float: left;
-    width: 30px;
-}
-
-#tourneyButton {
-    float: left;
-    width: 120px;
-}
-
-#autoTourneyControl {
-    float: left;
-    width: 78px;
-}
-
-#victoryDiv {
-    margin-top: 10px;
-    width: 289px;
-    text-align: center;
-}
-
-#increaseProbeTrustDiv {
-  float: left;
-  width: 130px;  
-  margin-left: 5;
-  border: 0;
-}
-
-#increaseMaxTrustDiv {
-  float: left;    
-  width: 150px;  
-  margin: 0;
-  border: 0;    
-}
-
-#combatButtonDiv {
-  margin-top: 0;    
-}
-
-#battleCanvasDiv {
-  position: relative;
-}
-
-#battleInterfaceDiv {
-  position: absolute;
-  left: 15px;
-  top: 8px;
-}
-
-canvas {
-  display: block;
-  margin-top: 0;
-  margin-bottom: 10;    
-  width: 310px;
-  height: 150px;
-  margin-left: auto;
-  margin-right: auto;
-  background-color: #808080;
-}
-
-#hypnoDroneEventDiv {
-  float: left;
-  background: black;    
-  width: 100%;
-
-}
-
-#prestigeDiv {
-  background-color: #222222;
-  /*color: black;*/
-  font-weight: bold;
-}
-
-#consoleDiv {
-  float: left;
-  background: black;    
-  width: 100%;
-  min-width: 900px;
-}
-
-#topDiv {
-  float: left;
-  white-space: nowrap;
-  width: 100%;
-}
-
-#containerColumns { 
-  float: left; 
-  white-space: nowrap;
-}
-
-#leftColumn {
-  display: inline-block;
-  vertical-align:top;
-  white-space: normal;
-  width: 275px;
-}
-
-#middleColumn {
-  display: inline-block;
-  vertical-align:top;
-  white-space: normal;
-  width: 275px;
-  margin-left: 10px;
-}
-
-#rightColumn {
-  display: inline-block;
-  vertical-align:top;
-  white-space: normal;
-  width: 320px;
-  margin-left: 10px;    
-}
-
-#investmentDiv1 {
-  float: left;
-  width: 64px; 
-  line-height: 20%;    
-}
-
-#investmentDiv2 {
-  float: left;
-  width: 65%; 
-  text-align: top;
-  margin-top: 0; 
-  margin-left: 5px;    
-}
-
-#stratDiv1 {
-  float: left;
-  width: 95px; 
-  line-height: 20%; 
-}
-
-#stratDiv2 {
-  float: left;
-  width: 60%; 
-  text-align: top;
-  margin-top: 0; 
-  margin-left: 5px;   
-}
-
-#vertPad {
-  float: left;
-  width: 35%;    
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 11;     
-}
-
-#vertStrat {
-  float: right;
-  text-align: center;
-  width: 65%;    
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 11;     
-
-}
-
-#horizStrat {
-  float: left; 
-
-  display: flex;    
-  align-items: center;
-
-  justify-content: center;    
-  width: 25%;  
-  height: 56px;    
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 11;     
-}
-
-#investmentEngineUpgrade {
-    margin: 5px;
-    margin-bottom: 10px;
-}
-
-#tournamentManagement {
-    margin: 5px;
-    margin-bottom: 10px;
-}
-
-#feedButtonDiv {
-    margin-top: 5;
-}
-
-.engine {
-    margin: 5;
-    border: 1px solid grey;
-    padding: 5; 
-}
-
-.engine2 {
-    margin: 5;
-    border: 1px solid grey;
-    padding: 5; 
-}
-
-.swarmEngine {
-    margin-bottom: 5;
-    border: 1px solid grey;
-    padding: 5; 
-}
-
-.qEngine {
-    margin-bottom: 10;
-    border: 1px solid grey;
-    padding: 5; 
-    height: 70px;
-    
-}
-
-.qChip {
-    width: 22px;
-    height: 22px;
-    margin-left: 2;
-    margin-right: 2;
-    margin-top: 2;
-    margin-bottom: 7;
-    background-color: white;  /* black originally */
-    float: left;
-}
-
-.engineText {
-    margin-bottom: 0;
-    margin-top: 0;
-    line-height: 150%;
-}
-
-.engineText1 {
-    margin-left: 5;
-    margin-bottom: 0;
-    margin-top: 0;
-}
-
-.engineText2 {
-    margin-bottom: 0;
-    margin-top: 0;
-    line-height: 150%;
-}
-
-.engineText3 {
-    margin-left: 5;
-    margin-top: 10;
-    line-height: 150%;
-}
-
-.engineText4 {
-    margin-left: 5;
-    margin-top: 10;
-    margin-bottom: 0;
-}
-
-.engineText5 {
-    margin-left: 0;
-    margin-top: 0;
-    margin-bottom: 3;
-}
-
-.engineText6 {
-    margin-left: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    vertical-align: bottom;
-}
-
-.engineText7 {
-    margin-left: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    vertical-align: bottom;
-}
-
-.engineText8 {
-    margin-left: 0;
-    margin-top: 3px;
-    margin-bottom: 0;
-}
-
-.engineText9 {
-    display: inline-block;
-    margin-top: 1px;
-
-}
-
-.engineText10 {
-    display: inline-block;
-    line-height: 18px;
-    vertical-align: bottom;
+/* Titles that sit inline with a control (Investments / Strategic Modeling) */
+.engine .engineText > b:first-child,
+.engine2 .engineText > b:first-child {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-size: 0.9rem;
+    margin-right: 6px;
 }
 
 hr {
-    display: block;
-    margin-top: .05em;
-    margin-bottom: 0.2em;
-    margin-left: auto;
-    margin-right: auto;
-    border-style: inset;
-    border-width: 1px;
-}
-
-hr.short {
-    
-    width: 225px;
-    margin-left: 0;
-}
-
-
-table.table1 {
-    table-layout: fixed;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11;
-    margin-bottom: 0;
-    margin-top: 0;
-    width: 100%;
     border: none;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-2), transparent);
+    margin: 9px 0 11px;
+}
+hr.short { width: 60%; }
+
+a { color: var(--accent); }
+
+/* ------------------------------------------------------------- layout */
+#page {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding: 26px clamp(12px, 3vw, 30px) 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: pageIn 0.5s ease both;
+}
+@keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* undo the original float-based stacking */
+#consoleDiv, #topDiv, #containerColumns { float: none; width: 100%; }
+
+#containerColumns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+    align-items: start;
+    white-space: normal;
 }
 
-table.table1 tr:nth-child(even) {
-    background-color: #333333;
+#leftColumn, #middleColumn, #rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    vertical-align: top;
+    white-space: normal;
 }
 
-table.table2 {
-    border-collapse: collapse;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11;
-    margin-bottom: 0;
-    margin-top: 0;
-    margin-right: 0px;
-    margin-left: 0px;
-    width: 70%;
-}
+/* the bare <br>s used as spacers between top-level panels become noise
+   inside a flex column — drop them; <br>s inside cards are unaffected */
+#leftColumn > br, #middleColumn > br, #rightColumn > br { display: none; }
 
-table.table3 {
-    border-collapse: collapse;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11;
-    margin-bottom: 0;
-    margin-top: 0;
-    margin-right: 0px;
-    margin-left: 0px;
-    width: 100%;
+/* --------------------------------------------------------- the console */
+#consoleDiv {
+    background: var(--surface-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.03);
+    padding: 16px 18px 14px;
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
 }
-
-table.table2 td:nth-child(1) {
-    width: 45px;
-    text-align: right;
-    padding-right: 4px;
-    border-left: none;
-    border-top: none;
-    border-bottom:none;
-    font-weight: bold;
+#consoleDiv::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
 }
-
-table.table2 td:nth-child(n>1) {
-    table-layout: fixed;
-}
-
-table.table2 td{
-    border: 1px solid white;
-    text-align: center;
-}
-
-p.clean {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11;
-    margin-bottom: 0;
-    margin-top: 1px;
-}
-
-p.clean2 {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11;
-    margin-bottom: 0;
-    margin-top: 0px; 
-}
-
-p.clean3 {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 11;
-    margin-bottom: 5px;
-    margin-top: 2px;
-}
-
-p.console {
-    font-family: "Lucida Sans Typewriter", "Lucida Console", Monaco, "Bitstream Vera Sans Mono", monospace;
-    font-size: 12;
-    color: white;
-    margin-top: 0;
+p.console, p.consoleOld {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
     white-space: nowrap;
+    overflow-x: auto;
+    margin: 0;
+}
+p.consoleOld { color: var(--text-faint); }
+p.console    { color: var(--text); }
+#readoutClock {
+    color: var(--accent);
+    background: var(--accent-weak);
+    border: 1px solid rgba(55,224,200,0.25);
+    border-radius: 999px;
+    padding: 1px 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+#readoutClock:hover { background: rgba(55,224,200,0.22); box-shadow: 0 0 14px -2px var(--accent-glow); }
+#cursor { color: var(--accent); }
+
+/* ------------------------------------------------------------- hero */
+#topDiv {
+    white-space: normal;
+    padding: 2px 4px;
+}
+#prestigeDiv {
+    display: inline-block;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+#prestigeDiv span { color: var(--accent); }
+h2 {
+    font-family: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+    color: var(--text-dim);
+    margin: 0;
+}
+h2 #clips {
+    color: var(--accent);
+    text-shadow: 0 0 26px var(--accent-glow);
 }
 
-p.consoleOld {
-    font-family: "Lucida Sans Typewriter", "Lucida Console", Monaco, "Bitstream Vera Sans Mono", monospace;
-    font-size: 12;
-    color: grey;
-    margin-bottom: 0;
-    white-space: nowrap;
+/* -------------------------------------------------------------- cards */
+#creationDiv, #wireProductionDiv, #spaceDiv, #businessDiv, #manufacturingDiv,
+#compDiv, #projectsDiv,
+#investmentEngine, #investmentEngineUpgrade, #strategyEngine, #tournamentManagement,
+#battleCanvasDiv, #honorDiv, #powerDiv, #probeDesignDiv,
+#increaseProbeTrustDiv, #increaseMaxTrustDiv,
+.engine, .engine2 {
+    display: flow-root;                 /* contains internal floats, no clipping */
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.018), transparent 120px),
+        var(--surface-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    margin: 0;                          /* spacing comes from the flex gap */
+    width: auto;
 }
 
-p.hypnoDrone {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 150;
-    color: white;
-    line-height: 115px;
-    margin-bottom: 0px;
-    margin-top: 0px;
+/* the small "upgrade" appendage cards read as compact footers */
+#investmentEngineUpgrade, #tournamentManagement, #honorDiv,
+#increaseProbeTrustDiv, #increaseMaxTrustDiv {
+    padding: 12px 16px;
+    float: none;
+    width: auto;
+}
+#honorDiv .engineText4, #honorDiv p { margin: 0; }
+
+/* nested sub-cards inside Computational Resources */
+.swarmEngine, .qEngine {
+    display: flow-root;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 13px 14px;
+    margin: 14px 0 0;
+    height: auto;
 }
 
-.pulsate {
-    -webkit-animation: pulsate .5s ease-out;
-    -webkit-animation-iteration-count: infinite; 
-    opacity: 0.0;
-    }
-
-@-webkit-keyframes pulsate {
-    0% { opacity: 0.0; }
-    50% { opacity: 1.0; }
-    100% { opacity: 0.0; }
-}
-
-.projectButton {
-    border-radius: 0px;
-    display: block;
-    height: 60px;
-    width: 275px;
-    background: #e8e8e8;
-    border: 1px solid rgba(0, 0, 0, 1);
-    outline: none;
-    margin-bottom: 6px;
-}
-
-.projectButton:hover {
-    display: block;
-    height: 60px;
-    width: 275px;
-    background: #c8c8c8;
-    border: 1px solid rgba(0, 0, 0, 0.25);
-}
-
-.projectButton:active {
-    display: block;
-    height: 60px;
-    width: 275px;
-    background: #d1d1d1;
-    border: 1px solid rgba(0, 0, 0, 1);
-}
-
-.projectButton:disabled {
-    border: none;
-}
-
+/* ------------------------------------------------------------ buttons */
 .button2 {
-   padding: 2px 4px;
-   font-size: 11px;
-   font-family: helvetica, serif;
-   text-decoration: none;
-   vertical-align: middle;
-   outline: none;
-   }
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+    background: linear-gradient(180deg, #1a2230, #121823);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    padding: 7px 12px;
+    margin: 2px 2px;
+    cursor: pointer;
+    text-decoration: none;
+    vertical-align: middle;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease,
+                box-shadow 0.15s ease, transform 0.1s ease, color 0.15s ease;
+}
+.button2:hover:enabled {
+    border-color: var(--accent);
+    color: var(--text-bright);
+    background: linear-gradient(180deg, #213041, #18222f);
+    box-shadow: 0 0 0 1px var(--accent-weak), 0 6px 18px -8px var(--accent-glow);
+}
+.button2:active:enabled { transform: translateY(1px); }
+.button2:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.button2:disabled,
+.button2[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: var(--line);
+    background: var(--surface-2);
+    box-shadow: none;
+    filter: grayscale(0.35);
+}
 
+/* primary call-to-action */
+#btnMakePaperclip {
+    width: 100%;
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    background: linear-gradient(135deg, #4ff0d8, #25c6af);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin: 0 0 2px;
+    box-shadow: 0 10px 26px -10px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+#btnMakePaperclip:hover:enabled {
+    background: linear-gradient(135deg, #5ffce4, #2ad6bd);
+    box-shadow: 0 14px 34px -10px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.45);
+    transform: translateY(-1px);
+}
+#btnMakePaperclip:active:enabled { transform: translateY(0); }
 
-/* =====================================================================
-   MOBILE-FRIENDLY RESPONSIVE LAYER  (added by patch)
-   ---------------------------------------------------------------------
-   Everything below is wrapped in a max-width media query so the desktop
-   layout is left 100% unchanged. No HTML or JS changes are required:
-   element IDs/structure are untouched, and the game logic only toggles
-   style.display / sets canvas.width, neither of which this affects.
+/* destructive actions get a red accent on hover */
+#btnFactoryReboot:hover:enabled, #btnHarvesterReboot:hover:enabled,
+#btnWireDroneReboot:hover:enabled, #btnFarmReboot:hover:enabled,
+#btnBatteryReboot:hover:enabled {
+    border-color: var(--danger);
+    color: #ffd9d5;
+    box-shadow: 0 0 0 1px rgba(240,106,96,0.16), 0 6px 18px -8px rgba(240,106,96,0.5);
+}
 
-   What it fixes on phones & small screens:
-     - The 3 fixed-width columns (275+275+320px) now STACK vertically.
-     - #consoleDiv no longer forces min-width:900px (the #1 cause of
-       horizontal scrolling); it fills the screen and scrolls its own
-       long lines internally instead.
-     - Buttons get larger, finger-friendly tap targets.
-     - Project buttons, the combat canvas, tables, etc. stay on-screen.
-     - Hover-only tooltips also reveal on tap/press (no hover on touch).
-   ===================================================================== */
-@media screen and (max-width: 960px) {
+/* keep the original explicit small-button widths usable */
+#btnAddProc, #btnAddMem { width: auto; min-width: 78px; }
 
-    /* Keep border + padding inside the width so full-width boxes
-       never push past the edge of the screen. Scoped to structural
-       containers so fixed-size widgets (q-chips, slider) are untouched. */
-    #page,
-    #consoleDiv,
-    #containerColumns,
-    #leftColumn,
-    #middleColumn,
-    #rightColumn,
-    .engine,
-    .engine2,
-    .swarmEngine,
-    .qEngine,
-    .projectButton {
-        box-sizing: border-box;
-    }
+/* ----------------------------------------------------- project buttons */
+.projectButton {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 58px;
+    text-align: left;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.74rem;
+    color: var(--text-dim);                       /* description colour */
+    background: linear-gradient(180deg, #161e2b, #0f141d);
+    border: 1px solid var(--line-2);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease,
+                transform 0.12s ease, background 0.15s ease;
+}
+.projectButton:hover:enabled {
+    border-color: var(--accent);
+    border-left-color: var(--accent);
+    background: linear-gradient(180deg, #1c2738, #131a25);
+    box-shadow: 0 0 0 1px var(--accent-weak), 0 10px 26px -12px var(--accent-glow);
+    transform: translateY(-1px);
+}
+.projectButton:active:enabled { transform: translateY(0); }
+.projectButton:disabled, .projectButton[disabled] {
+    opacity: 0.45;
+    border-left-color: var(--line-2);
+    cursor: not-allowed;
+}
+.projectButton span {                              /* title */
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--text-bright);
+    letter-spacing: 0.01em;
+}
+.projectButton > div { height: 7px; }              /* spacer before description */
 
-    /* Belt-and-braces: stop stray wide content from scrolling the page */
-    html, body {
-        max-width: 100%;
-        overflow-x: hidden;
-    }
+/* --------------------------------------------------------- form inputs */
+select {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--text);
+    background-color: var(--surface-2);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%2337e0c8' stroke-width='1.6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    padding: 5px 26px 5px 10px;
+    margin: 2px 0;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+select:hover { border-color: var(--accent); }
+select:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-weak); }
+option { background: var(--surface-1); color: var(--text); }
 
-    body {
-        margin: 8px;
-    }
+/* range slider (Swarm work / think) */
+input[type="range"].slider, .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), #2a3445);
+    outline: none;
+    margin: 8px 0;
+}
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #0c121a;
+    box-shadow: 0 0 10px var(--accent-glow);
+    cursor: pointer;
+}
+.slider::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #0c121a;
+    box-shadow: 0 0 10px var(--accent-glow);
+    cursor: pointer;
+}
+#swarmSliderDiv { display: flex; align-items: center; gap: 10px; margin: 10px 0 4px; }
+#swarmSlider { position: static; flex: 1; width: auto; margin: 0; }
+#sliderLabelWork, #sliderLabelThink {
+    position: static; left: auto;
+    color: var(--text-dim); font-size: 0.78rem; white-space: nowrap;
+}
 
-    /* --- Stack the three columns instead of forcing them side by side --- */
-    #containerColumns {
-        white-space: normal;
-        display: block;
-        width: 100%;
-    }
+/* ----------------------------------------------- quantum computing chips */
+.qChip {
+    display: inline-block;
+    float: none;                         /* flow inline instead of floating */
+    width: 22px; height: 22px;
+    margin: 2px 4px 8px 0;
+    border-radius: 5px;
+    background-color: var(--accent);     /* JS animates opacity over this   */
+    box-shadow: 0 0 9px var(--accent-glow), inset 0 0 4px rgba(255,255,255,0.4);
+    vertical-align: middle;
+}
+#qCompDisplay { color: var(--accent); margin-left: 6px; }
 
-    #leftColumn,
-    #middleColumn,
-    #rightColumn {
-        display: block;
-        width: 100%;
-        max-width: 460px;          /* keeps line lengths readable on tablets */
-        margin: 0 auto 14px auto;  /* centered + stacked + breathing room   */
-    }
+/* -------------------------------------------------------------- tables */
+table.table1, table.table2, table.table3 {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    border-collapse: collapse;
+    margin-top: 6px;
+}
+table.table1 { width: 100%; table-layout: fixed; }
+table.table1 th {
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.62rem;
+    color: var(--text-faint);
+    font-weight: 600;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--line-2);
+}
+table.table1 td { padding: 4px 6px; color: var(--text); }
+table.table1 tr:nth-child(even) { background-color: rgba(150,180,210,0.04); }
 
-    /* --- The console: drop the 900px min-width, fill the screen --- */
-    #consoleDiv {
-        min-width: 0;
-        width: 100%;
-        overflow-x: auto;                 /* long log lines scroll in-place */
-        -webkit-overflow-scrolling: touch;
-    }
+/* payoff matrix — JS toggles cell background between LightGrey/transparent,
+   so we only theme the structure here */
+table.table2 { width: 100%; }
+table.table2 td { border: 1px solid var(--line-2); text-align: center; padding: 5px; color: var(--text); }
+table.table2 td:nth-child(1) {
+    width: 48px; text-align: right; padding-right: 6px;
+    border: none; font-weight: 700; color: var(--accent);
+}
+table.table2 th { color: var(--text-dim); font-weight: 600; padding: 4px; }
+table.table3 { width: 100%; }
+table.table3 td { padding: 2px 4px; color: var(--text-dim); }
 
-    #topDiv {
-        width: 100%;
-        white-space: normal;
-    }
+#tournamentLabel { color: var(--text-dim); }
+#vertPad, #vertStrat, #horizStrat { font-size: 0.68rem; color: var(--text-dim); }
 
-    /* --- Bigger, easier-to-tap buttons --- */
-    .button2 {
-        padding: 7px 11px;
-        font-size: 14px;
-        margin: 2px 1px;
-        line-height: 1.1;
-    }
+/* -------------------------------------------------------------- combat */
+#battleCanvasDiv { padding: 14px; position: relative; }
+canvas {
+    display: block;
+    width: 100%;
+    max-width: 310px;
+    height: auto;
+    margin: 0;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    background-color: #2c3441;
+}
+#battleInterfaceDiv { position: absolute; left: 24px; top: 22px; }
+#battleInterfaceDiv b { color: var(--accent); }
+#battleResult { font-family: "Chakra Petch", system-ui, sans-serif; font-weight: 700; letter-spacing: 0.06em; }
+#victoryDiv { width: auto; max-width: 100%; }
 
-    /* Project buttons go full width and grow to fit their (often long) text */
-    .projectButton,
-    .projectButton:hover,
-    .projectButton:active {
-        width: 100%;
-        max-width: 460px;
-        height: auto;
-        min-height: 60px;
-        padding: 8px 10px;
-        font-size: 14px;
-        white-space: normal;
-    }
+/* ----------------------------------------------- compute resource rows */
+#processorDisplay, #memoryDisplay { height: auto; }
+.engineText10 { color: var(--accent); font-weight: 500; }
+.engineText6, .engineText7 { color: var(--text-dim); }
 
-    /* --- Keep the combat canvas + its boxes inside the viewport --- */
-    #battleCanvasDiv,
-    #victoryDiv,
-    #battleInterfaceDiv {
-        max-width: 100%;
-    }
+/* honor / yomi readouts pop a little */
+#honorDisplay, #yomiDisplay { color: var(--amber); }
 
-    canvas {
-        width: 100%;
-        max-width: 310px;   /* never larger than original; scales down only */
-        height: auto;       /* preserve the 310x150 aspect ratio            */
-    }
+/* --------------------------------------------------------- tooltips */
+.toolTip, .toolTip2, .toolTip3 { position: relative; display: inline-block; }
+.toolTip2 { margin-left: 2px; margin-top: 5px; }
+.toolTip3 { margin-bottom: 5px; }
 
-    /* Investment table stays fluid */
-    table.table1 {
-        width: 100%;
-    }
+.toolTip .toolTipText,
+.toolTip2 .toolTipText2,
+.toolTip3 .toolTipText3 {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    z-index: 5;
+    background: #0d141d;
+    color: var(--text);
+    border: 1px solid var(--line-2);
+    box-shadow: var(--shadow);
+    border-radius: 7px;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.45;
+    text-align: center;
+    padding: 7px 10px;
+    transition: opacity 0.18s ease;
+}
+.toolTip  .toolTipText  { width: 170px; bottom: 125%; left: 50%; margin-left: -85px; }
+.toolTip2 .toolTipText2 { width: 200px; bottom: 135%; left: 50%; margin-left: -100px; }
+.toolTip3 .toolTipText3 { width: 185px; bottom: 130%; left: 0; }
 
-    /* --- Touch devices have no hover: reveal tooltips on press too --- */
-    .toolTip:active  .toolTipText,
-    .toolTip2:active .toolTipText2,
-    .toolTip3:active .toolTipText3 {
-        visibility: visible;
-        opacity: 1;
-    }
+/* touch devices have no hover — reveal on press too */
+.toolTip:hover .toolTipText, .toolTip:active .toolTipText,
+.toolTip2:hover .toolTipText2, .toolTip2:active .toolTipText2,
+.toolTip3:hover .toolTipText3, .toolTip3:active .toolTipText3 {
+    visibility: visible; opacity: 1;
+}
+
+/* ------------------------------------------------------- dramatic events */
+#cover {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 50;
+}
+#hypnoDroneEventDiv { float: none; width: 100%; background: #000; }
+p.hypnoDrone { color: var(--text-bright); }
+
+/* blinking console cursor */
+.pulsate {
+    animation: pulsate 0.9s ease-in-out infinite;
+    opacity: 0;
+}
+@keyframes pulsate {
+    0%, 100% { opacity: 0; }
+    50%      { opacity: 1; }
+}
+
+/* ----------------------------------------------------------- responsive */
+@media (max-width: 760px) {
+    #page { padding: 16px 12px 48px; gap: 16px; }
+    #containerColumns { gap: 14px; }
+    .button2 { font-size: 0.82rem; padding: 9px 13px; }   /* bigger tap targets */
+    select { font-size: 0.85rem; padding: 8px 28px 8px 11px; }
+    h2 { font-size: clamp(1.9rem, 8vw, 2.6rem); }
+    #consoleDiv { padding: 14px 14px 12px; }
 }
