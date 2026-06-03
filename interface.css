@@ -690,3 +690,126 @@ p.hypnoDrone {
    outline: none;
    }
 
+
+/* =====================================================================
+   MOBILE-FRIENDLY RESPONSIVE LAYER  (added by patch)
+   ---------------------------------------------------------------------
+   Everything below is wrapped in a max-width media query so the desktop
+   layout is left 100% unchanged. No HTML or JS changes are required:
+   element IDs/structure are untouched, and the game logic only toggles
+   style.display / sets canvas.width, neither of which this affects.
+
+   What it fixes on phones & small screens:
+     - The 3 fixed-width columns (275+275+320px) now STACK vertically.
+     - #consoleDiv no longer forces min-width:900px (the #1 cause of
+       horizontal scrolling); it fills the screen and scrolls its own
+       long lines internally instead.
+     - Buttons get larger, finger-friendly tap targets.
+     - Project buttons, the combat canvas, tables, etc. stay on-screen.
+     - Hover-only tooltips also reveal on tap/press (no hover on touch).
+   ===================================================================== */
+@media screen and (max-width: 960px) {
+
+    /* Keep border + padding inside the width so full-width boxes
+       never push past the edge of the screen. Scoped to structural
+       containers so fixed-size widgets (q-chips, slider) are untouched. */
+    #page,
+    #consoleDiv,
+    #containerColumns,
+    #leftColumn,
+    #middleColumn,
+    #rightColumn,
+    .engine,
+    .engine2,
+    .swarmEngine,
+    .qEngine,
+    .projectButton {
+        box-sizing: border-box;
+    }
+
+    /* Belt-and-braces: stop stray wide content from scrolling the page */
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        margin: 8px;
+    }
+
+    /* --- Stack the three columns instead of forcing them side by side --- */
+    #containerColumns {
+        white-space: normal;
+        display: block;
+        width: 100%;
+    }
+
+    #leftColumn,
+    #middleColumn,
+    #rightColumn {
+        display: block;
+        width: 100%;
+        max-width: 460px;          /* keeps line lengths readable on tablets */
+        margin: 0 auto 14px auto;  /* centered + stacked + breathing room   */
+    }
+
+    /* --- The console: drop the 900px min-width, fill the screen --- */
+    #consoleDiv {
+        min-width: 0;
+        width: 100%;
+        overflow-x: auto;                 /* long log lines scroll in-place */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #topDiv {
+        width: 100%;
+        white-space: normal;
+    }
+
+    /* --- Bigger, easier-to-tap buttons --- */
+    .button2 {
+        padding: 7px 11px;
+        font-size: 14px;
+        margin: 2px 1px;
+        line-height: 1.1;
+    }
+
+    /* Project buttons go full width and grow to fit their (often long) text */
+    .projectButton,
+    .projectButton:hover,
+    .projectButton:active {
+        width: 100%;
+        max-width: 460px;
+        height: auto;
+        min-height: 60px;
+        padding: 8px 10px;
+        font-size: 14px;
+        white-space: normal;
+    }
+
+    /* --- Keep the combat canvas + its boxes inside the viewport --- */
+    #battleCanvasDiv,
+    #victoryDiv,
+    #battleInterfaceDiv {
+        max-width: 100%;
+    }
+
+    canvas {
+        width: 100%;
+        max-width: 310px;   /* never larger than original; scales down only */
+        height: auto;       /* preserve the 310x150 aspect ratio            */
+    }
+
+    /* Investment table stays fluid */
+    table.table1 {
+        width: 100%;
+    }
+
+    /* --- Touch devices have no hover: reveal tooltips on press too --- */
+    .toolTip:active  .toolTipText,
+    .toolTip2:active .toolTipText2,
+    .toolTip3:active .toolTipText3 {
+        visibility: visible;
+        opacity: 1;
+    }
+}
